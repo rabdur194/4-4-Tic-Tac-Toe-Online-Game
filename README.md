@@ -1,1 +1,1 @@
-# 4-4-Tic-Tac-Toe-Online-Game
+# users can choose how bug tic tac toe game they want to play with AI machine
