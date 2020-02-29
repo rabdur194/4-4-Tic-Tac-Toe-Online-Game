@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  
+  <style type="text/css">
+  
+
+	table tr:first-child td {
+		border-top: 0;
+	}
+
+	table tr:last-child td {
+		border-bottom: 0;
+	}
+
+	table tr td:first-child {
+		border-left: 0;
+	}
+
+	table tr td:last-child {
+		border-right: 0;
+	}
+		td {
+		border:  5px solid #3CF7D6 ;
+		height:  100px;
+		width:  100px;
+		text-align:  center;
+		vertical-align:  middle;
+		font-family:  "Comic Sans MS", cursive, sans-serif;
+		font-size:  70px;
+		cursor: pointer;
+
+
+	}
+	td:hover{
+		background-color:#DC143C;
+	}
+
+
+	table {
+		border-collapse: collapse;
+		position: absolute;
+		left: 30%;
+		margin-left:5px;
+		top: 100px;
+	}
+
+	.endgame {
+	  display: none;
+	  width: 200px;
+	  top: 100px;
+	  background-color: #2F4F4F;
+	  position: absolute;
+	  left: 19%;
+	  margin-left: -100px;
+	  padding-top: 50px;
+	  padding-bottom: 50px;
+	  text-align: center;
+	  border-radius: 5px;
+	  color: white;
+	  font-size: 2em;
+	}
+	.btn hover
+	{
+		background-color: gold;
+	}
+
+      .btn{
+  position:fixed;
+  bottom:10px;
+  left:10%;
+  width:20%;
+ 
+}
+
+ .btn .btn2{
+     background:red;
+     width:100%;
+     color:white;
+     font-weight:bold;
+     border-radius: 23px;
+    padding:5px;
+  }
+  </style>>
+
+</head>
+
+<body>
+ <body style="background-color:red;">
+	<table>
+		<tr>
+			<td class="cell" id="0"></td>
+			<td class="cell" id="1"></td>
+			<td class="cell" id="2"></td>
+		</tr>
+		<tr>
+			<td class="cell" id="3"></td>
+			<td class="cell" id="4"></td>
+			<td class="cell" id="5"></td>
+		</tr>
+		<tr>
+			<td class="cell" id="6"></td>
+			<td class="cell" id="7"></td>
+            <td class="cell" id="8"></td>
+		</tr>
+    
+	</table>
+     
+     <div class= "a"> <a href="Tictactoe.html" target="_blank" <button style="color:white ;font-family: Arial, Helvetica, sans-serif; font-weight:bold;background-color: Green;
+        font-size: 30px;cursor: pointer;"  >Home Page</button></a>
+        
+     
+    
+</div>
+
+	<div class="endgame">
+        
+		<div class="text"></div>
+		<button style="color:white ;font-family: Arial, Helvetica, sans-serif; font-weight:bold;background-color: #DB7093;
+	font-size: 20px; cursor: pointer;" onClick="startGame()">Play Game Again??</button>
+	</div>
+
+	<div class="btn">
+	<button class="btn2" style="color:white ;font-family: Arial, Helvetica, sans-serif; font-weight:bold;background-color: black;
+	font-size: 30px;cursor: pointer;" onClick="setx()">You will play first</button>
+	<button class = "btn2" style="color:white ;font-family: Arial, Helvetica, sans-serif; font-weight:bold;background-color: #FF9900;
+	font-size: 30px;cursor: pointer;" onClick="setO()">AI will play first</button>
+     </div>
+        
+
+
+
+
+  <script>
+  	//javascrpt starts here
+  	var origBoard;
+let huPlayer='X';
+let aiPlayer='O';
+const winCombos = [
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[6, 4, 2]
+]
+
+function setx(){
+	huPlayer='X';
+	aiPlayer='O';
+	startGame();
+}
+
+function setO(){
+	huPlayer='O';
+	aiPlayer='X';
+	startGame();
+	document.getElementById(Math.floor(Math.random() * 9)).innerText = aiPlayer;
+}
+
+const cells = document.querySelectorAll('.cell');
+startGame();
+
+function startGame() {
+	document.querySelector(".endgame").style.display = "none";
+	origBoard = Array.from(Array(9).keys());
+	for (var i = 0; i < cells.length; i++) {
+		cells[i].innerText = '';
+		cells[i].style.removeProperty('background-color');
+		cells[i].addEventListener('click', turnClick, false);
+	}
+}
+
+function turnClick(square) {
+	if (typeof origBoard[square.target.id] == 'number') {
+		turn(square.target.id, huPlayer)
+		if (!checkWin(origBoard, huPlayer) && !checkTie()) turn(bestSpot(), aiPlayer);
+	}
+}
+
+function turn(squareId, player) {
+	origBoard[squareId] = player;
+	document.getElementById(squareId).innerText = player;
+	let gameWon = checkWin(origBoard, player)
+	if (gameWon) gameOver(gameWon)
+}
+
+function checkWin(board, player) {
+	let plays = board.reduce((a, e, i) =>
+		(e === player) ? a.concat(i) : a, []);
+	let gameWon = null;
+	for (let [index, win] of winCombos.entries()) {
+		if (win.every(elem => plays.indexOf(elem) > -1)) {
+			gameWon = {index: index, player: player};
+			break;
+		}
+	}
+	return gameWon;
+}
+
+function gameOver(gameWon) {
+	for (let index of winCombos[gameWon.index]) {
+		document.getElementById(index).style.backgroundColor =
+			gameWon.player == huPlayer ? "#00FF7F" : "#4B0082";
+	}
+	for (var i = 0; i < cells.length; i++) {
+		cells[i].removeEventListener('click', turnClick, false);
+	}
+	declareWinner(gameWon.player == huPlayer ? "You win!" : "You lose.");
+}
+
+function declareWinner(who) {
+	document.querySelector(".endgame").style.display = "block";
+	document.querySelector(".endgame .text").innerText = who;
+}
+
+function emptySquares() {
+	return origBoard.filter(s => typeof s == 'number');
+}
+
+function bestSpot() {
+	return alphaBetaPruning(3, origBoard, aiPlayer).index;
+}
+
+function checkTie() {
+	if (emptySquares().length == 0) {
+		for (var i = 0; i < cells.length; i++) {
+			cells[i].style.backgroundColor = "#191970";
+			cells[i].removeEventListener('click', turnClick, false);
+		}
+		declareWinner("Tie Game!")
+		return true;
+	}
+	return false;
+}
+
+function alphaBetaPruning(depth, newBoard, player, alpha, beta) {
+	var availSpots = emptySquares();
+
+	if(depth == 0 || availSpots.length === 0){
+		return {score: eva1(newBoard)+eva2(newBoard)};
+	} else if (checkWin(newBoard, huPlayer)) {
+		return {score: -20};
+	} else if (checkWin(newBoard, aiPlayer)) {
+		return {score: 20};
+	} 
+	var moves = [];
+	for (var i = 0; i < availSpots.length; i++) {
+		var move = {score: 0, index:-1};
+		let value = 0;
+		move.index = newBoard[availSpots[i]];
+		newBoard[availSpots[i]] = player;
+
+		if (player == aiPlayer) {
+			var result = alphaBetaPruning(depth-1, newBoard, huPlayer, alpha, beta);
+			move.score = result.score;
+			value = result.score;
+			if (value > alpha) {
+				newBoard[availSpots[i]] = move.index;
+				moves.push(move);
+                alpha = value;
+            }
+
+            if (alpha >= beta) {
+                break;
+            }
+		} else {
+			var result = alphaBetaPruning(depth-1, newBoard, aiPlayer, alpha, beta);
+			move.score = result.score;
+			value= result.score;
+
+			if (value < beta) {
+                beta = value;
+            }
+
+            if (alpha >= beta) {
+            	newBoard[availSpots[i]] = move.index;
+            	moves.push(move);
+                break;
+            }		
+		}
+
+		newBoard[availSpots[i]] = move.index;
+
+		moves.push(move);
+	}
+
+	var bestMove;
+
+	if(player === aiPlayer) {
+		var bestScore = -10000;
+		for(var i = 0; i < moves.length; i++) {
+			if (moves[i].score > bestScore) {
+				bestScore = moves[i].score;
+				bestMove = i;
+			}
+		}
+	} else {
+		var bestScore = 10000;
+		for(var i = 0; i < moves.length; i++) {
+			if (moves[i].score < bestScore) {
+				bestScore = moves[i].score;
+				bestMove = i;
+			}
+		}
+	}
+
+	return moves[bestMove];
+}
+
+
+//below 3 are for evaluation function 
+function eva1(board){
+	let ai=0;
+	let hu=0;
+	for(let i = 0; i < winCombos.length; i++){
+		let child = winCombos[i];
+		if( (board[child[0]] == child[0] || board[child[0]] == aiPlayer)&&
+			(board[child[1]] == child[1] || board[child[1]] == aiPlayer)&&
+			(board[child[2]] == child[2] || board[child[2]] == aiPlayer) ){
+			ai+=1;
+		}
+		
+		else if( 
+			(board[child[0]] == child[0] || board[child[0]] == huPlayer)&&
+			(board[child[1]] == child[1] || board[child[1]] == huPlayer)&&
+			(board[child[2]] == child[2] || board[child[2]] == huPlayer) ){
+			hu+=1;
+		}
+
+	}
+	return ai-hu;
+}
+
+function eva2(board){
+	let xo=['X2','x1','O2','O1'];
+	let x2=0;
+	let x1=0;
+	let o2=0;
+	let o1=0;
+	for(let i = 0; i < winCombos.length; i++){
+		let child = winCombos[i];
+		if(check(board,child,xo[0])){
+			x2+=1;
+		}
+		if(check(board,child,xo[1])){
+			x1+=1;
+		}
+		if(check(board,child,xo[2])){
+			o2+=1;
+		}
+		if(check(board,child,xo[3])){
+			o1+=1;
+		}
+
+	}
+	return 8*x2+2*x1-8*o2-2*o1;
+}
+
+function check(board,child,xo){
+	let p=0;
+	if(xo=='X2'){
+		for (let q=0;q<child.length;q++){
+			if(board[child[q]]=='O'){
+				return false;
+			}
+			else if(board[child[q]]=='X'){
+				p+=1;
+			}
+		}
+		if(p==2){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	else if(xo=='X1'){
+		for (let q=0;q<child.length;q++){
+			if(board[child[q]]=='O'){
+				return false;
+			}
+			else if(board[child[q]]=='X'){
+				p+=1;
+			}
+		}
+		if(p==1){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	else if(xo=='O2'){
+		for (let q=0;q<child.length;q++){
+			if(board[child[q]]=='X'){
+				return false;
+			}
+			else if(board[child[q]]=='O'){
+				p+=1;
+			}
+		}
+		if(p==2){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	else if(xo=='O1'){
+		for (let q=0;q<child.length;q++){
+			if(board[child[q]]=='X'){
+				return false;
+			}
+			else if(board[child[q]]=='O'){
+				p+=1;
+			}
+		}
+		if(p==1){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+}
+
+
+
+  </script>
+</body>
+</html>
